@@ -49,7 +49,7 @@ class TestTasks(unittest.TestCase):
         self.assertFalse(find_genes("ATGAAA"))
         self.assertFalse(find_genes("ATGAAATA"))
         self.assertFalse(find_genes("GTGAAATAG"))  # Missing start codon
-        self.assertTrue(find_genes("ATGCCCCTAA"))
+        self.assertFalse(find_genes("ATGCCCCTAA"))
 
 
 if __name__ == "__main__":
