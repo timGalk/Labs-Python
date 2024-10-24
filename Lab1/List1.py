@@ -21,6 +21,7 @@ def weekday(day: int, month: int, year: int) -> str:
     Returns:
         str: The name of the day of the week (e.g., "Monday").
     """
+    # TODO rise an exceprion
     week_days = {0: "Sunday", 1: "Monday", 2: "Tuesday",
                  3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday"}
 
@@ -47,6 +48,8 @@ def segment_length(Ap: float, Ak: float, Bp: float, Bk: float) -> tuple or None:
         tuple: A tuple containing the start and end of the intersection,
                or None if there is no intersection.
     """
+    # TODO rise an exceprion
+
     start_A = min(Ap, Ak)
     end_A = max(Ap, Ak)
     start_B = min(Bp, Bk)
@@ -71,6 +74,8 @@ def random_walk(number_of_steps: int) -> tuple:
     Returns:
         list: A list of tuples representing the coordinates visited during the walk.
     """
+
+    # TODO rise an exceprion
     start_point = (0, 0)
     movement = [start_point]
 
@@ -92,6 +97,7 @@ def dec2bin(num: int) -> str:
     Returns:
         str: The binary representation of the number as a string.
     """
+    # TODO rise an exceprion
     if num == 0:
         return "0"
 
@@ -114,6 +120,7 @@ def dna_complement(dna: str) -> str:
     Returns:
         str: The complementary DNA sequence or an error message if the input is invalid.
     """
+    # TODO rise an exceprion
     dna = dna.upper()
     pairs = {"A": "T", "C": "G", "T": "A", "G": "C"}
     output = ""
@@ -137,6 +144,7 @@ def find_genes(dna: str) -> bool:
     Returns:
         bool: True if the sequence is a valid gene, False otherwise.
     """
+    # TODO rise an exceprion
     stop_codons = {"TAG", "TAA", "TGA"}
     start_codon = "ATG"
 
@@ -161,3 +169,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#TODO rise an exceptions for tasks
