@@ -87,7 +87,6 @@ class TestDNAComplement(unittest.TestCase):
         self.assertEqual(dna_complement("ATCG"), "TAGC")
         self.assertEqual(dna_complement("AAAA"), "TTTT")
         self.assertEqual(dna_complement("GCTA"), "CGAT")
-        # Test case insensitivity
         self.assertEqual(dna_complement("atcg"), "TAGC")
 
     def test_invalid_inputs(self):
@@ -95,10 +94,10 @@ class TestDNAComplement(unittest.TestCase):
             dna_complement("ATCX")  # Invalid character
         with self.assertRaises(ValueError):
             dna_complement("AT CG")  # Space not allowed
-        # with self.assertRaises(ValueError):
-        #     dna_complement("")  # Empty string
         with self.assertRaises(ValueError):
             dna_complement(123)  # Non-string input
+        with self.assertRaises(ValueError):
+            dna_complement("")
 
 
 class TestFindGenes(unittest.TestCase):
