@@ -37,7 +37,7 @@ def weekday(day: int, month: int, year: int) -> str:
         raise ValueError("Month must be between 1 and 12")
 
     # Month-specific day validation. Note  that the fragment of code was provided by Claude AI. For the prompt:
-    # " modify the code to exclude  wrong dates "
+    # " modify the code to exclude wrong dates "
     days_in_month = {
         1: 31, 2: 29 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 28,
         3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31
