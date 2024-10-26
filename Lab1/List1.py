@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Oct 10 10:22:55 2024
-
-@author: Tsimur Halkin
-"""
-
 import random
 
 
@@ -20,8 +13,17 @@ def weekday(day: int, month: int, year: int) -> str:
 
     Returns:
         str: The name of the day of the week (e.g., "Monday").
+
+    Raises:
+        ValueError: If the day, month, or year are not valid.
     """
-    # TODO rise an exceprion
+    if not (1 <= month <= 12):
+        raise ValueError("Month must be between 1 and 12.")
+    if not (1 <= day <= 31):
+        raise ValueError("Day must be between 1 and 31.")
+    if year < 1:
+        raise ValueError("Year must be positive.")
+
     week_days = {0: "Sunday", 1: "Monday", 2: "Tuesday",
                  3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday"}
 
@@ -47,8 +49,12 @@ def segment_length(Ap: float, Ak: float, Bp: float, Bk: float) -> tuple or None:
     Returns:
         tuple: A tuple containing the start and end of the intersection,
                or None if there is no intersection.
+
+    Raises:
+        ValueError: If any of the segment points are not valid numbers.
     """
-    # TODO rise an exceprion
+    if not all(isinstance(i, (int, float)) for i in [Ap, Ak, Bp, Bk]):
+        raise ValueError("All segment points must be numbers.")
 
     start_A = min(Ap, Ak)
     end_A = max(Ap, Ak)
@@ -65,7 +71,7 @@ def segment_length(Ap: float, Ak: float, Bp: float, Bk: float) -> tuple or None:
 
 # Task 3
 
-def random_walk(number_of_steps: int) -> tuple:
+def random_walk(number_of_steps: int) -> list:
     """Generate a random walk starting from the origin.
 
     Args:
@@ -73,9 +79,13 @@ def random_walk(number_of_steps: int) -> tuple:
 
     Returns:
         list: A list of tuples representing the coordinates visited during the walk.
-    """
 
-    # TODO rise an exceprion
+    Raises:
+        ValueError: If the number of steps is not positive.
+    """
+    if not isinstance(number_of_steps, int) or number_of_steps <= 0:
+        raise ValueError("Number of steps must be a positive integer.")
+
     start_point = (0, 0)
     movement = [start_point]
 
@@ -88,6 +98,8 @@ def random_walk(number_of_steps: int) -> tuple:
     return movement
 
 
+# Task 4
+
 def dec2bin(num: int) -> str:
     """Convert a decimal number to its binary representation.
 
@@ -96,8 +108,13 @@ def dec2bin(num: int) -> str:
 
     Returns:
         str: The binary representation of the number as a string.
+
+    Raises:
+        ValueError: If the input number is negative.
     """
-    # TODO rise an exceprion
+    if not isinstance(num, int) or num < 0:
+        raise ValueError("Input must be a non-negative integer.")
+
     if num == 0:
         return "0"
 
@@ -118,23 +135,26 @@ def dna_complement(dna: str) -> str:
         dna (str): A string representing the DNA sequence.
 
     Returns:
-        str: The complementary DNA sequence or an error message if the input is invalid.
+        str: The complementary DNA sequence.
+
+    Raises:
+        ValueError: If the DNA string contains invalid characters.
     """
-    # TODO rise an exceprion
+    if not isinstance(dna, str) or any(c not in "ACGT" for c in dna.upper()):
+        raise ValueError("DNA sequence must contain only 'A', 'C', 'G', and 'T'.")
+
     dna = dna.upper()
     pairs = {"A": "T", "C": "G", "T": "A", "G": "C"}
     output = ""
 
     for acid in dna:
-        if acid not in pairs:
-            return f"{acid} is not a valid nucleotide. Please check your input."
-
         output += pairs[acid]
 
     return output
 
 
 # Task 6
+
 def find_genes(dna: str) -> bool:
     """Determine if a DNA sequence contains a valid gene.
 
@@ -143,8 +163,14 @@ def find_genes(dna: str) -> bool:
 
     Returns:
         bool: True if the sequence is a valid gene, False otherwise.
+
+    Raises:
+        ValueError: If the DNA string is not valid.
     """
-    # TODO rise an exceprion
+    if not isinstance(dna, str) or any(c not in "ACGT" for c in dna.upper()):
+        raise ValueError("DNA sequence must contain only 'A', 'C', 'G', and 'T'.")
+
+    dna = dna.upper()
     stop_codons = {"TAG", "TAA", "TGA"}
     start_codon = "ATG"
 
@@ -163,11 +189,12 @@ def find_genes(dna: str) -> bool:
 
 
 def main():
-    # Input condition  for task 6
-    print(find_genes(input("Enter DNA sequence: ")))
+    # Example input handling for task 6
+    try:
+        print(find_genes(input("Enter DNA sequence: ")))
+    except ValueError as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
     main()
-
-#TODO rise an exceptions for tasks
