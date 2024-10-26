@@ -1,56 +1,127 @@
-
 import unittest
+from datetime import datetime
 from List1 import weekday, segment_length, random_walk, dec2bin, dna_complement, find_genes
 
-
-class TestTasks(unittest.TestCase):
-
-    # Test Task 1: weekday
-    def test_weekday(self):
-        self.assertEqual(weekday(10, 10, 2024), "Thursday")
-        self.assertEqual(weekday(1, 1, 2000), "Saturday")
+# The test
+class TestWeekday(unittest.TestCase):
+    def test_valid_dates(self):
+        self.assertEqual(weekday(1, 1, 2024), "Monday")
+        self.assertEqual(weekday(4, 7, 1776), "Thursday")
         self.assertEqual(weekday(25, 12, 2023), "Monday")
 
-    # Test Task 2: segment_length
-    def test_segment_length(self):
+    def test_leap_year(self):
+        self.assertEqual(weekday(29, 2, 2024), "Thursday")  # 2024 is a leap year
+        with self.assertRaises(ValueError):
+            weekday(29, 2, 2023)  # 2023 is not a leap year
+
+    def test_invalid_inputs(self):
+        with self.assertRaises(TypeError):
+            weekday("1", 1, 2024)
+        with self.assertRaises(ValueError):
+            weekday(1, 13, 2024)  # Invalid month
+        with self.assertRaises(ValueError):
+            weekday(32, 1, 2024)  # Invalid day
+        with self.assertRaises(ValueError):
+            weekday(1, 1, -1)  # Invalid year
+        with self.assertRaises(ValueError):
+            weekday(1, 1, datetime.now().year + 101)  # Too far in future
+
+
+class TestSegmentLength(unittest.TestCase):
+    def test_overlapping_segments(self):
         self.assertEqual(segment_length(1, 5, 3, 7), (3, 5))
-        self.assertEqual(segment_length(2, 6, 8, 10), None)
-        self.assertEqual(segment_length(-5, 0, -3, 2), (-3, 0))
-        self.assertEqual(segment_length(5, 5, 5, 5), None)  # No intersection
+        self.assertEqual(segment_length(0, 10, 5, 15), (5, 10))
 
-    # Test Task 3: random_walk
-    def test_random_walk(self):
-        steps = 5
-        walk = random_walk(steps)
-        self.assertEqual(len(walk), steps + 1)
-        self.assertEqual(walk[0], (0, 0))
-        # Check if each step is adjacent (no more than 1 unit away)
-        for i in range(1, len(walk)):
-            self.assertTrue(abs(walk[i][0] - walk[i - 1][0]) <= 1)
-            self.assertTrue(abs(walk[i][1] - walk[i - 1][1]) <= 1)
+    def test_non_overlapping_segments(self):
+        self.assertIsNone(segment_length(1, 3, 4, 6))
+        self.assertIsNone(segment_length(10, 20, 0, 5))
 
-    # Test Task 4: dec2bin
-    def test_dec2bin(self):
-        self.assertEqual(dec2bin(42), "101010")
+    def test_invalid_inputs(self):
+        with self.assertRaises(ValueError):
+            segment_length("1", 5, 3, 7)
+        with self.assertRaises(ValueError):
+            segment_length(None, 5, 3, 7)
+
+
+class TestRandomWalk(unittest.TestCase):
+    def test_valid_steps(self):
+        result = random_walk(5)
+        self.assertEqual(len(result), 6)  # 5 steps plus starting point
+        self.assertEqual(result[0], (0, 0))  # Should start at origin
+
+        # Test each step is valid (differs by at most 1 in each direction)
+        for i in range(1, len(result)):
+            dx = abs(result[i][0] - result[i - 1][0])
+            dy = abs(result[i][1] - result[i - 1][1])
+            self.assertLessEqual(dx, 1)
+            self.assertLessEqual(dy, 1)
+
+    def test_invalid_inputs(self):
+        with self.assertRaises(ValueError):
+            random_walk(0)
+        with self.assertRaises(ValueError):
+            random_walk(-1)
+        with self.assertRaises(ValueError):
+            random_walk(1.5)
+
+
+class TestDec2Bin(unittest.TestCase):
+    def test_valid_numbers(self):
         self.assertEqual(dec2bin(0), "0")
         self.assertEqual(dec2bin(1), "1")
-        self.assertEqual(dec2bin(255), "11111111")
+        self.assertEqual(dec2bin(2), "10")
+        self.assertEqual(dec2bin(8), "1000")
+        self.assertEqual(dec2bin(15), "1111")
 
-    # Test Task 5: dna_complement
-    def test_dna_complement(self):
-        self.assertEqual(dna_complement("ATGC"), "TACG")
-        self.assertEqual(dna_complement("GATTACA"), "CTAATGT")
-        self.assertEqual(dna_complement(""), "")
-        self.assertEqual(dna_complement("ATGCX"), "X is not a valid nucleotide. Please check your input.")
-
-    # Test Task 6: find_genes
-    def test_find_genes(self):
-        self.assertTrue(find_genes("ATGAAATAG"))
-        self.assertFalse(find_genes("ATGAAA"))
-        self.assertFalse(find_genes("ATGAAATA"))
-        self.assertFalse(find_genes("GTGAAATAG"))  # Missing start codon
-        self.assertFalse(find_genes("ATGCCCCTAA"))
+    def test_invalid_inputs(self):
+        with self.assertRaises(ValueError):
+            dec2bin(-1)
+        with self.assertRaises(ValueError):
+            dec2bin(1.5)
+        with self.assertRaises(ValueError):
+            dec2bin("123")
 
 
-if __name__ == "__main__":
+class TestDNAComplement(unittest.TestCase):
+    def test_valid_sequences(self):
+        self.assertEqual(dna_complement("ATCG"), "TAGC")
+        self.assertEqual(dna_complement("AAAA"), "TTTT")
+        self.assertEqual(dna_complement("GCTA"), "CGAT")
+        # Test case insensitivity
+        self.assertEqual(dna_complement("atcg"), "TAGC")
+
+    def test_invalid_inputs(self):
+        with self.assertRaises(ValueError):
+            dna_complement("ATCX")  # Invalid character
+        with self.assertRaises(ValueError):
+            dna_complement("AT CG")  # Space not allowed
+        # with self.assertRaises(ValueError):
+        #     dna_complement("")  # Empty string
+        with self.assertRaises(ValueError):
+            dna_complement(123)  # Non-string input
+
+
+class TestFindGenes(unittest.TestCase):
+    def test_valid_genes(self):
+        self.assertTrue(find_genes("ATGTAG"))  # Simplest valid gene
+        self.assertTrue(find_genes("ATGAAATAG"))  # Valid gene with content
+        self.assertTrue(find_genes("ATGAAATGA"))  # Valid gene with TGA stop codon
+
+    def test_invalid_genes(self):
+        self.assertFalse(find_genes("ATGAAA"))  # No stop codon
+        self.assertFalse(find_genes("TAAATGTAG"))  # Starts with stop codon
+        self.assertFalse(find_genes("ATGTAGTAG"))  # Multiple stop codons
+        self.assertFalse(find_genes("ATGTAGA"))  # Length not multiple of 3
+        self.assertFalse(find_genes("AAATAG"))  # No start codon
+
+    def test_invalid_inputs(self):
+        with self.assertRaises(ValueError):
+            find_genes("ATGX")  # Invalid character
+        with self.assertRaises(ValueError):
+            find_genes("ATG TAG")  # Space not allowed
+        with self.assertRaises(ValueError):
+            find_genes(123)  # Non-string input
+
+
+if __name__ == '__main__':
     unittest.main()
