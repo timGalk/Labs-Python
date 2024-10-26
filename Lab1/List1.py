@@ -1,5 +1,11 @@
-import random
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 10 10:22:55 2024
 
+@author: Tsimur Halkin
+"""
+import random
+from datetime import datetime
 
 # Task 1
 
@@ -7,22 +13,45 @@ def weekday(day: int, month: int, year: int) -> str:
     """Return the day of the week for a given date.
 
     Args:
-        day (int): The day of the month.
-        month (int): The month (1-12).
-        year (int): The year.
+        day (int): The day of the month (1-31 depending on the month).
+        month (int): The month of the year (1-12).
+        year (int): The year as a positive integer.
 
     Returns:
-        str: The name of the day of the week (e.g., "Monday").
+        str: The name of the day of the week (e.g., 'Monday', 'Tuesday').
 
     Raises:
-        ValueError: If the day, month, or year are not valid.
+        TypeError: If `day`, `month`, or `year` are not integers.
+        ValueError: If `month` is not between 1 and 12.
+                    If `day` is not valid for the given `month` and `year`.
+                    If `year` is less than 1.
+                    If `year` is more than 100 years in the future from the current year.
     """
+    # Type checking
+    # the fragment of code was provided by Claude AI in order to prevent wrong input for users
+    if not all(isinstance(x, int) for x in [day, month, year]):
+        raise TypeError("Day, month, and year must be integers")
+
+    # Basic range validation
     if not (1 <= month <= 12):
-        raise ValueError("Month must be between 1 and 12.")
-    if not (1 <= day <= 31):
-        raise ValueError("Day must be between 1 and 31.")
+        raise ValueError("Month must be between 1 and 12")
+
+    # Month-specific day validation. Note  that the fragment of code was provided by Claude AI. For the prompt:
+    # " modify the code to exclude  wrong dates "
+    days_in_month = {
+        1: 31, 2: 29 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 28,
+        3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31
+    }
+    if not (1 <= day <= days_in_month[month]):
+        raise ValueError(f"Invalid day {day} for month {month}")
+
     if year < 1:
-        raise ValueError("Year must be positive.")
+        raise ValueError("Year must be positive")
+
+    # Additional validation for reasonable date ranges
+    current_year = datetime.now().year
+    if year > current_year + 100:
+        raise ValueError(f"Year {year} is too far in the future")
 
     week_days = {0: "Sunday", 1: "Monday", 2: "Tuesday",
                  3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday"}
