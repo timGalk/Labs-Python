@@ -25,7 +25,7 @@ class HealthProfile:
         self.height = height  # in cm
         self.weight = weight  # in kg
 
-    def get_age(self):
+    def get_age(self) -> int :
         """Calculate and return age based on current year."""
         current_year = date.today().year
         return current_year - self.dob
@@ -36,7 +36,6 @@ class HealthProfile:
         max_hr = 220 - age
         if max_hr <= 0:
             raise ValueError("Maximum heart rate calculation is invalid due to age.")
-
         # Target HR is 50-70% of max HR
         target_hr_min = max_hr * 0.5
         target_hr_max = max_hr * 0.7
