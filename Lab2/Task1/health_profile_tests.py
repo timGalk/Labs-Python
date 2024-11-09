@@ -33,6 +33,7 @@ class TestHealthProfile(unittest.TestCase):
             123,  # Number
             None,  # None
             [],  # List
+            bool
         ]
 
         for name in invalid_names:
@@ -93,6 +94,26 @@ class TestHealthProfile(unittest.TestCase):
         self.assertEqual(profile.height, 175.5)
         self.assertEqual(profile.weight, 70.5)
 
+    def test_get_age_valid (self):
+        """Test get_age method"""
+        profile = HealthProfile(self.valid_name, self.valid_dob, self.valid_height, self.valid_weight)
+        self.assertEqual(profile.get_age(), 34)
+    def test_get_age_invalid(self):
+        """Test get_age method with invalid date of birth values"""
+        current_year = date.today().year
+        invalid_dobs = [
+            current_year + 1,  # Future year
+            1899,  # Too old
+            "1990",  # String instead of int
+            None,  # None
+            0,  # Zero
+            -1990,  # Negative
+        ]
+
+        for dob in invalid_dobs:
+            with self.assertRaises(ValueError) as context:
+                HealthProfile(self.valid_name, dob, self.valid_height, self.valid_weight)
+            self.assertTrue("Data of birth must be an integer" in str(context.exception))
 
 if __name__ == '__main__':
     unittest.main()

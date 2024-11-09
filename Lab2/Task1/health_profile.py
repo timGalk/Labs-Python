@@ -8,8 +8,15 @@ class HealthProfile:
     healthy_bmi_range = (18.5, 24.9)
 
     def __init__(self, name, dob, height, weight):
-        """Initialize HealthProfile with name, year of birth, height in cm, and weight in kg."""
-
+        """Initialize HealthProfile with name, year of birth, height in cm, and weight in kg.
+        Args:
+            name (str): Name of the person.
+            dob (int): Year of birth.
+            height (float): Height in cm.
+            weight (float): Weight in kg.
+        Raises:
+            ValueError: If any of the input values are invalid.
+        """
         # Input validation
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Name must be a non-empty string.")
@@ -26,31 +33,40 @@ class HealthProfile:
         self.weight = weight  # in kg
 
     def get_age(self) -> int :
-        """Calculate and return age based on current year."""
+        """Calculate and return age based on current year.
+        Returns:
+            int: Age of the person.
+        Raises:
+            ValueError: If the date of birth is invalid.
+        """
         current_year = date.today().year
         return current_year - self.dob
 
-    def get_target_hr(self):
-        """Calculate and return target heart rate for moderate-intensity exercise."""
+    def get_target_hr(self) -> tuple:
+        """Calculate and return target heart rate for moderate-intensity exercise.
+        Returns:
+            tuple: A tuple containing the minimum and maximum target heart rates.
+        Raises:
+            ValueError: If the age is invalid."""
         age = self.get_age()
         max_hr = 220 - age
-        if max_hr <= 0:
-            raise ValueError("Maximum heart rate calculation is invalid due to age.")
+
         # Target HR is 50-70% of max HR
         target_hr_min = max_hr * 0.5
         target_hr_max = max_hr * 0.7
         return (target_hr_min, target_hr_max)
 
-    def get_bmi(self):
-        """Calculate and return BMI."""
-        if self.height == 0:
-            raise ValueError("Height cannot be zero when calculating BMI.")
+    def get_bmi(self) -> int :
+        """Calculate and return BMI.
+        Returns:
+            int: BMI of the person.
+        """
         height_m = self.height / 100  # convert height to meters
         bmi = self.weight / (height_m ** 2)
         return bmi
 
     @staticmethod
-    def calculate_age_stats(profiles):
+    def calculate_age_stats(profiles : list) -> tuple:
         """Calculate mean and standard deviation of ages in a list of HealthProfile objects."""
         if not profiles:
             raise ValueError("No profiles provided for age statistics calculation.")
@@ -61,7 +77,7 @@ class HealthProfile:
         return mean_age, std_dev_age
 
     @staticmethod
-    def find_people_at_risk(profiles):
+    def find_people_at_risk(profiles : list) -> list:
         """Find profiles with BMI outside the healthy range."""
         if not profiles:
             raise ValueError("No profiles provided for BMI risk assessment.")
@@ -83,11 +99,11 @@ if __name__ == "__main__":
         profile3 = HealthProfile("Charlie", 2000, 160, 45)
 
         profiles = [profile1, profile2, profile3]
-
         # Display profile data and methods output
         for profile in profiles:
             print(
-                f"{profile.name}: Age = {profile.get_age()}, Target HR = {profile.get_target_hr()}, BMI = {profile.get_bmi()}")
+                f"{profile.name}: Age = {profile.get_age()}, Target HR = {profile.get_target_hr()},"
+                f" BMI = {profile.get_bmi()}")
 
         # Calculate age statistics
         mean_age, std_dev_age = HealthProfile.calculate_age_stats(profiles)
