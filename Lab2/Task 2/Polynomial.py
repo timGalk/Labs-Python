@@ -69,7 +69,12 @@ class Polynomial:
         Returns:
             float: The result of the polynomial evaluation.
         """
-        return sum(coef * (x ** i) for i, coef in enumerate(self.coefficients))
+        result = 0.0
+        power = len(self.coefficients) - 1  # Start with highest power
+        for coeff in self.coefficients:
+            result += coeff * (x ** power)
+            power -= 1
+        return result
 
     def __add__(self, other: "Polynomial") -> "Polynomial":
         """Adds another Polynomial to this Polynomial.
@@ -83,15 +88,29 @@ class Polynomial:
         Raises:
             ValueError: If other is not an instance of Polynomial.
         """
-        if not isinstance(other, Polynomial):
-            raise ValueError("Can only add another Polynomial.")
-        max_len = max(len(self.coefficients), len(other.coefficients))
-        result_coeffs = [
-            (self.coefficients[i] if i < len(self.coefficients) else 0) +
-            (other.coefficients[i] if i < len(other.coefficients) else 0)
-            for i in range(max_len)
-        ]
-        return Polynomial(result_coeffs)
+        if not isinstance(other, type(self)):
+            raise ValueError("Can only add Polynomial to another Polynomial")
+
+        # Get the degree of each polynomial
+        len1 = len(self.coefficients)
+        len2 = len(other.coefficients)
+
+        # Initialize result with zeros for the maximum degree
+        max_len = max(len1, len2)
+        new_coeffs = [0] * max_len
+
+        # Add coefficients from first polynomial
+        offset = max_len - len1
+        for i in range(len1):
+            new_coeffs[i + offset] = self.coefficients[i]
+
+        # Add coefficients from second polynomial
+        offset = max_len - len2
+        for i in range(len2):
+            new_coeffs[i + offset] += other.coefficients[i]
+
+        # Create a new polynomial with the summed coefficients
+        return type(self)(new_coeffs)
 
     def __sub__(self, other: "Polynomial") -> "Polynomial":
         """Subtracts another Polynomial from this Polynomial.
@@ -105,15 +124,29 @@ class Polynomial:
         Raises:
             ValueError: If other is not an instance of Polynomial.
         """
-        if not isinstance(other, Polynomial):
-            raise ValueError("Can only subtract another Polynomial.")
-        max_len = max(len(self.coefficients), len(other.coefficients))
-        result_coeffs = [
-            (self.coefficients[i] if i < len(self.coefficients) else 0) -
-            (other.coefficients[i] if i < len(other.coefficients) else 0)
-            for i in range(max_len)
-        ]
-        return Polynomial(result_coeffs)
+        if not isinstance(other, type(self)):
+            raise ValueError("Can only subtract Polynomial from another Polynomial")
+
+        # Get the degree of each polynomial
+        len1 = len(self.coefficients)
+        len2 = len(other.coefficients)
+
+        # Initialize result with zeros for the maximum degree
+        max_len = max(len1, len2)
+        new_coeffs = [0] * max_len
+
+        # Add coefficients from first polynomial
+        offset = max_len - len1
+        for i in range(len1):
+            new_coeffs[i + offset] = self.coefficients[i]
+
+        # Subtract coefficients from second polynomial
+        offset = max_len - len2
+        for i in range(len2):
+            new_coeffs[i + offset] -= other.coefficients[i]
+
+        # Create a new polynomial with the differenced coefficients
+        return type(self)(new_coeffs)
 
     def __mul__(self, other: "Polynomial") -> "Polynomial":
         """Multiplies this Polynomial by another Polynomial.
@@ -127,13 +160,31 @@ class Polynomial:
         Raises:
             ValueError: If other is not an instance of Polynomial.
         """
-        if not isinstance(other, Polynomial):
-            raise ValueError("Can only multiply by another Polynomial.")
-        result_coeffs = [0] * (len(self.coefficients) + len(other.coefficients) - 1)
-        for i, coef1 in enumerate(self.coefficients):
-            for j, coef2 in enumerate(other.coefficients):
-                result_coeffs[i + j] += coef1 * coef2
-        return Polynomial(result_coeffs)
+        if not isinstance(other, type(self)):
+            raise ValueError("Can only multiply Polynomial by another Polynomial")
+
+        # Get the lengths of both polynomials
+        len1 = len(self.coefficients)
+        len2 = len(other.coefficients)
+
+        # The degree of the product will be the sum of the degrees
+        # Initialize result array with zeros
+        result_length = len1 + len2 - 1
+        new_coeffs = [0] * result_length
+
+        # Multiply each term of self by each term of other
+        # Remember coefficients are in descending order
+        for i in range(len1):
+            for j in range(len2):
+                # When multiplying terms, add their powers
+                # The power at position i is (len1 - 1 - i)
+                # The power at position j is (len2 - 1 - j)
+                power_sum = (len1 - 1 - i) + (len2 - 1 - j)
+                # This sum corresponds to position (result_length - 1 - power_sum) in new_coeffs
+                pos = result_length - 1 - power_sum
+                new_coeffs[pos] += self.coefficients[i] * other.coefficients[j]
+
+        return type(self)(new_coeffs)
 
     def __iadd__(self, other: "Polynomial") -> "Polynomial":
         """Performs in-place addition of another Polynomial.
@@ -175,9 +226,13 @@ class Polynomial:
         return self
 
 def main():
-    p1 = Polynomial([1, 0, 3, 4])
+    # p1 = Polynomial([1, 0, 3, 4])
+    # print(str(p1))
+    # print(p1(2))
+    p1 = Polynomial([3, 2, 1])
+    p2 = Polynomial([0, 2, 4])
+    p1 += p2
     print(str(p1))
-    print(p1(2))
 
 if __name__ == "__main__":
     main()
