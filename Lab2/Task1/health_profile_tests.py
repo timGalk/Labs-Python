@@ -115,5 +115,35 @@ class TestHealthProfile(unittest.TestCase):
                 HealthProfile(self.valid_name, dob, self.valid_height, self.valid_weight)
             self.assertTrue("Data of birth must be an integer" in str(context.exception))
 
+    def test_calculate_age_stats_empty(self):
+        """Test for raising ValueError when profiles list is empty."""
+        with self.assertRaises(ValueError):
+            HealthProfile.calculate_age_stats([])
+
+    def test_calculate_age_stats_single_profile(self):
+        """Test for standard deviation of 0 when only one profile is provided."""
+        single_profile = [HealthProfile("John Doe", 1990, 175, 70)]
+        mean_age, std_dev_age = HealthProfile.calculate_age_stats(single_profile)
+        self.assertEqual(mean_age, 34)
+        self.assertEqual(std_dev_age, 0)
+
+    def test_find_people_at_risk_valid(self):
+        """Test to find people at risk due to BMI outside healthy range."""
+        healthy_profiles = [HealthProfile("John Doe", 1990, 175, 67),
+                            HealthProfile("Jane Doe", 1980, 180, 70)]
+        self.assertEqual(len(healthy_profiles), 2)  # profile3 and profile4 should be at risk
+
+    def test_find_people_at_risk_empty(self):
+        """Test for raising ValueError when profiles list is empty."""
+        with self.assertRaises(ValueError):
+            HealthProfile.find_people_at_risk([])
+
+    def test_find_people_at_risk_no_at_risk(self):
+        """Test for returning an empty list when all profiles are healthy."""
+        healthy_profiles = [HealthProfile("John Doe", 1990, 175, 100),
+                            HealthProfile("Jane Doe", 1980, 180, 100)]
+        at_risk = HealthProfile.find_people_at_risk(healthy_profiles)
+        self.assertEqual(len(at_risk), 2)
+
 if __name__ == '__main__':
     unittest.main()
