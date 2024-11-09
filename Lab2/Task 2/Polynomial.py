@@ -279,9 +279,6 @@ def main():
         p1 *= p2
         print("p1 after p1 *= p2:", p1)
 
-    if __name__ == "__main__":
-        main()
-
 
 if __name__ == "__main__":
     main()
