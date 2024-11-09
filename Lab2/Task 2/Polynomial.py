@@ -240,15 +240,45 @@ class Polynomial:
         self.coefficients = result.coefficients
         return self
 
+
 def main():
-    # p1 = Polynomial([1, 0, 3, 4])
-    # print(str(p1))
-    # print(p1(2))
-    p1 = Polynomial([3, -2, 1])
-    print(str(p1))
-    p2 = Polynomial([0, 2, 4])
+    # Create polynomial instances
+    p1 = Polynomial([1, 0, -3, 2])  # x^3 - 3x + 2
+    p2 = Polynomial([0, 2, 1])  # x^2 + 2x
+
+    # Display polynomials
+    print("Polynomial 1:", p1)
+    print("Polynomial 2:", p2)
+
+    # Evaluate polynomials at x = 2
+    x_value = 2
+    print(f"p1({x_value}) = {p1(x_value)}")
+    print(f"p2({x_value}) = {p2(x_value)}")
+
+    # Add polynomials
+    sum_poly = p1 + p2
+    print("p1 + p2:", sum_poly)
+
+    # Subtract polynomials
+    diff_poly = p1 - p2
+    print("p1 - p2:", diff_poly)
+
+    # Multiply polynomials
+    prod_poly = p1 * p2
+    print("p1 * p2:", prod_poly)
+
+    # In-place addition of polynomials
     p1 += p2
-    print(str(p1))
+    print("p1 after p1 += p2:", p1)
+
+    # In-place subtraction of polynomials
+    p1 -= p2
+    print("p1 after p1 -= p2:", p1)
+
+    # In-place multiplication of polynomials
+    p1 *= p2
+    print("p1 after p1 *= p2:", p1)
+
 
 if __name__ == "__main__":
     main()
