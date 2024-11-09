@@ -52,6 +52,8 @@ class Polynomial:
             str: The polynomial in human-readable format, such as "3x² + 2x + 1".
         """
         # Unicode superscript mapping for exponents up to 9
+        # Warning the provided code was developed by ChatGPT for the prompt :{initial code} modify the code with
+        # the
         # https://en.wikipedia.org/wiki/Superscript
         superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹"
 

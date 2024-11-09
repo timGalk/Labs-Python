@@ -1,7 +1,6 @@
 import unittest
 from Polynomial import Polynomial
 
-
 class TestPolynomial(unittest.TestCase):
     def setUp(self):
         # Create test polynomials that will be used across multiple tests
@@ -68,6 +67,8 @@ class TestPolynomial(unittest.TestCase):
         result = self.p4 + self.p3  # (2x²) + (x + 1)
         self.assertEqual(result.coefficients, [2, 1, 1])  # 2x² + x + 1
 
+        with self.assertRaises(ValueError):
+            self.p1 + 5
         # Test type error
         with self.assertRaises(ValueError):
             result = self.p1 + "not a polynomial"
@@ -92,6 +93,32 @@ class TestPolynomial(unittest.TestCase):
         # Test type error
         with self.assertRaises(ValueError):
             result = self.p1 - "not a polynomial"
+
+    def test_mul(self):
+        # Test basic multiplication
+        result = self.p3 * self.p3  # (x + 1)(x + 1)
+        self.assertEqual(result.coefficients, [1, 2, 1])  # x² + 2x + 1
+
+        # Test multiplication by zero
+        result = self.p1 * self.zero
+        self.assertEqual(result.coefficients, [0,0,0])  # 0
+
+        # Test multiplication of different degrees
+        result = self.p3 * self.p4  # (x + 1)(2x²)
+        self.assertEqual(result.coefficients, [2, 2, 0, 0])  # 2x³ + 2x²
+
+        # Test multiplication by monomial
+        mono = Polynomial([2])  # constant polynomial 2
+        result = self.p1 * mono  # (3x² + 2x + 1)(2)
+        self.assertEqual(result.coefficients, [6, 4, 2])  # 6x² + 4x + 2
+
+        # Test more complex multiplication
+        result = self.p1 * self.p2  # (3x² + 2x + 1)(x² - 1)
+        self.assertEqual(result.coefficients, [3, 2, -2, -2, -1])  # 3x⁴ + 2x³ + x² - 3x² - 2x - 1 in result:
+                                                                            # 3x⁴ + 2x³ - 2x² - 2x - 1
+        # Test type error
+        with self.assertRaises(ValueError):
+            result = self.p1 * "not a polynomial"
 
 
 if __name__ == "__main__":
