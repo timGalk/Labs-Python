@@ -1,5 +1,5 @@
 from Sequence import Sequence
-from RNAsequence import RNASequence
+from RNASequence import RNASequence
 # Formatig to Google style was performed by AI
 class DNASequence(Sequence):
     """Class representing a DNA sequence, derived from the abstract Sequence class.
