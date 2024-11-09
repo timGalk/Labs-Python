@@ -49,15 +49,28 @@ class Polynomial:
         """Generates a string representation of the polynomial.
 
         Returns:
-            str: The polynomial in human-readable format, such as "3*x^2 + 2*x + 1".
+            str: The polynomial in human-readable format, such as "3x² + 2x + 1".
         """
+        # Unicode superscript mapping for exponents up to 9
+        # https://en.wikipedia.org/wiki/Superscript
+        superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+
         terms = []
         for power, coef in enumerate(reversed(self.coefficients)):
             if coef != 0:
-                term = f"{coef}" if power == 0 else (f"x^{power}" if power > 1 else "x")
-                if coef != 1 or power == 0:
-                    term = f"{coef}*{term}" if power > 0 else f"{coef}"
+                # Choose the term format based on power
+                if power == 0:
+                    term = f"{coef}"
+                elif power == 1:
+                    term = f"{coef}x" if coef != 1 else "x"
+                elif power < 10:
+                    term = f"{coef}x{''.join(superscripts[int(digit)] for digit in str(power))}" if coef != 1 \
+                        else f"x{''.join(superscripts[int(digit)] for digit in str(power))}"
+                else:
+                    term = f"{coef}x^{power}" if coef != 1 else f"x^{power}"
+
                 terms.append(term)
+
         return " + ".join(reversed(terms)) if terms else "0"
 
     def __call__(self, x: float) -> float:
@@ -229,7 +242,8 @@ def main():
     # p1 = Polynomial([1, 0, 3, 4])
     # print(str(p1))
     # print(p1(2))
-    p1 = Polynomial([3, 2, 1])
+    p1 = Polynomial([3, -2, 1])
+    print(str(p1))
     p2 = Polynomial([0, 2, 4])
     p1 += p2
     print(str(p1))
