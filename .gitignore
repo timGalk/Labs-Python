@@ -1,5 +1,5 @@
 /*************  ✨ Codeium Command 🌟  *************/
-.vscode/
-.idea/
+/.vscode/
+/.idea/
+.gitignore
 
-/******  c8028525-067e-48d7-8cbd-82fdcc2ade21  *******/
