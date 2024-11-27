@@ -1,5 +1,6 @@
-/*************  ✨ Codeium Command 🌟  *************/
-/.vscode/
-/.idea/
-.gitignore
+
+# Files/folders to ignore
+.idea
+.vscode
+__pycache__
 
