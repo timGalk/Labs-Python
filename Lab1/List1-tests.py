@@ -32,6 +32,7 @@ class TestSegmentLength(unittest.TestCase):
         self.assertEqual(segment_length(1, 5, 3, 7), (3, 5))
         self.assertEqual(segment_length(0, 10, 5, 15), (5, 10))
 
+
     def test_non_overlapping_segments(self):
         self.assertIsNone(segment_length(1, 3, 4, 6))
         self.assertIsNone(segment_length(10, 20, 0, 5))
