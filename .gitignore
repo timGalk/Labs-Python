@@ -1,8 +1,5 @@
 
-# Files/folders to ignore
-
-__pycache__
-
+# Directories   
 /.vscode/
 /.idea/
-/__pycache__/
+/.vscode/
