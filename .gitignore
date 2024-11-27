@@ -1,6 +1,9 @@
 
 # Files/folders to ignore
-.idea
-.vscode
+
 __pycache__
 
+/.vscode/
+/.idea/
+/__pycache__/
+.gitignore
