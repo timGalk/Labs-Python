@@ -35,6 +35,6 @@ def shingles(t:str, k:int ) -> list:
 
 
 def main ():
-    print(shingles("hello world", 1))
+    print(shingles("one two three four five ", 4))
 
 if __name__ == "__main__": main(),
