@@ -28,13 +28,13 @@ def shingles(t:str, k:int ) -> list:
     word_arr = t.split(' ')
     result = []
     for i in range(len(word_arr)):
-        if i + k > len(word_arr):
+        if i + k >= len(word_arr):
             break
         result.append(" ".join(word_arr[i:i + k]))
     return result
 
 
 def main ():
-    print(shingles("one two three four five ", 4))
+    print(shingles("one two three four five ", 3))
 
-if __name__ == "__main__": main(),
+if __name__ == "__main__": main()
