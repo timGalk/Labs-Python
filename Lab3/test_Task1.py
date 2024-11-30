@@ -1,4 +1,5 @@
 from a import shingles
+from shingle import counter_shingles
 import pytest
 
 # Part A tests
@@ -37,16 +38,24 @@ def test_shingles_with_valid_input():
     assert shingles("This is a test. This is only a test", 2) == ['This is', 'is a', 'a test.',
                                                                   'test. This', 'This is', 'is only',
                                                                   'only a', 'a test']
-# Part B tests
-def test_with_k_greater_than_string_length ():
+# Part B tests  for counter_shingles function
 
+def test_counter_shingles_with_valid_input():
+    """ Test counter_shingles function with valid input """
+    assert counter_shingles(shingles("one two three four", 3)) == {"one two three": 1, "two three four": 1}
+    assert counter_shingles(shingles("This is a test. This is only a test", 2)) == {'This is': 2, 'is a': 1, 'a test.': 1,
+                                                                                    'test. This': 1, 'is only': 1,
+                                                                                    'only a': 1, 'a test': 1}
 
 
 
 # Part C tests
 if __name__ == "__main__":
+    # Task a tests
     test_shingles_with_invalid_input()
     test_with_invalid_k()
     test_with_zero_k()
     test_with_empty_string()
+    # Task B tests
+    test_counter_shingles_with_valid_input()
     print("All tests passed")
