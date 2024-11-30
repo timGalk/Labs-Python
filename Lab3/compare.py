@@ -22,7 +22,7 @@ def preprocess_text(text: str, remove_punctuation: bool) -> str:
 
 def jaccard_similarity(set1: set, set2: set) -> float:
     """
-    Calculate the Jaccard similarity between two sets.
+    Calculates the Jaccard similarity between two sets.
 
     Args:
         set1 (set): First set.
