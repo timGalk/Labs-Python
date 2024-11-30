@@ -97,6 +97,7 @@ def segment_length(Ap: float, Ak: float, Bp: float, Bk: float) -> tuple or None:
     end_intersection = min(end_A, end_B)
 
     if end_intersection <= start_intersection:
+
         return None
     else:
         return (start_intersection, end_intersection)
@@ -238,11 +239,11 @@ def find_genes(dna: str) -> bool:
 
 def main():
     # Example input handling for task 6
+
     try:
         print(find_genes(input("Enter DNA sequence: ")))
     except ValueError as e:
         print(f"Error: {e}")
-
 
 if __name__ == "__main__":
     main()
