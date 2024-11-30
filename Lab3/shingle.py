@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from shingles import shingles
+from a import shingles
 
 def counter_shingels(arr: list) -> dict:
     """
@@ -30,11 +30,16 @@ def counter_shingels(arr: list) -> dict:
 
 
 def main():
+
     parser = argparse.ArgumentParser(description="Find the most common k-shingles in the input text.")
     parser.add_argument('-n', type=int, required=True, help="Number of most common shingles to display.")
     parser.add_argument('-k', type=int, required=True, help="Length of each shingle.")
     args = parser.parse_args()
-
+    # n - number of most common shingles to display
+    if args.n <= 0:
+        raise ValueError("Number of most common shingles must be positive.")
+    if args.k <= 0:
+        raise ValueError("Impossible to have k greater than number of words ")
     # Read multiline input until EOF
     input_text = sys.stdin.read()
     k_shingles = shingles(input_text, args.k)

@@ -5,6 +5,7 @@ Descriprions of the functions:
 
 def shingles(t:str, k:int ) -> list:
     """
+
     Args:
         t: string of tokens
         k: integer, number of shingles
@@ -28,14 +29,15 @@ def shingles(t:str, k:int ) -> list:
     word_arr = t.split(' ')
     result = []
     for i in range(len(word_arr)):
-        if i + k >= len(word_arr):
+        if i + k > len(word_arr):
             break
         result.append(" ".join(word_arr[i:i + k]))
     return result
 
 
 def main ():
-    print(shingles("one two three four five ", 3))
+    print(shingles("one two three four five", 3))
+    print(shingles("Hello world", 2))
     print(shingles("This is a test. This is only a test", 2))
 
 if __name__ == "__main__": main()
