@@ -31,8 +31,10 @@ def jaccard_similarity(set1: set, set2: set) -> float:
     Returns:
         float: Jaccard similarity (intersection / union).
     """
+    if  not  isinstance(set1, set) or not isinstance(set2, set):
+        raise TypeError("Both inputs must be sets.")
     intersection = set1 & set2
-    union = set1 | set2
+    union = set1.union(set2)
     return len(intersection) / len(union)
 
 
@@ -59,8 +61,6 @@ def compare_files(file1: str, file2: str, k: int, remove_punctuation: bool) -> f
 
     shingles1 = set(shingles(text1, k))
     shingles2 = set(shingles(text2, k))
-    print(shingles1)
-    print(shingles2)
     return jaccard_similarity(shingles1, shingles2)
 
 
