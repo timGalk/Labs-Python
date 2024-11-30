@@ -18,19 +18,17 @@ def shingles(t:str, k:int ) -> list:
 
 
     """
-    # errors check
-    if (not isinstance(t, str)) or (t.isspace()) or (t == ""):
+    if not isinstance(t, str) or t.isspace() or t == "":
         raise TypeError("t must be a non-empty string")
-    if (not isinstance(k, int)):
+    if not isinstance(k, int):
         raise TypeError("k must be an integer")
-    if (k > len(t.split(' '))) or (k <=  0):
-        raise ValueError("k must be less than the number of words in t") \
-     # shingles
+    if k > len(t.split(' ')) or k <= 0:
+        raise ValueError("k must be less than or equal to the number of words in t and greater than 0")
+
+        # Shingles generation
     word_arr = t.split(' ')
     result = []
-    for i in range(len(word_arr)):
-        if i + k > len(word_arr):
-            break
+    for i in range(len(word_arr) - k + 1):
         result.append(" ".join(word_arr[i:i + k]))
     return result
 
