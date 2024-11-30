@@ -39,19 +39,28 @@ def jaccard_similarity(set1: set, set2: set) -> float:
 def compare_files(file1: str, file2: str, k: int, remove_punctuation: bool) -> float:
     """
     Compare two files by calculating the Jaccard similarity of their k-shingles.
+    Args :
+        file1 (str): Path to the first file.
+        file2 (str): Path to the second file.
+        k (int): Size of the shingles (k-grams).
+        remove_punctuation (bool): Whether to remove punctuation from text.
+    Returns :
+        float: Jaccard similarity of the two files.
+    Raises :
+        ValueError: If one or both files are empty.
     """
     with open(file1, 'r') as f1, open(file2, 'r') as f2:
         text1 = preprocess_text(f1.read(), remove_punctuation)
         text2 = preprocess_text(f2.read(), remove_punctuation)
 
-    tokens1 = text1.split()
-    tokens2 = text2.split()
+    # empty files check
+    if not text1 or not text2:
+        raise ValueError("One or both files are empty.")
 
-    if not tokens1 or not tokens2:
-        raise ValueError("One or both files have no valid tokens for comparison.")
-
-    shingles1 = set(shingles(tokens1, k))
-    shingles2 = set(shingles(tokens2, k))
+    shingles1 = set(shingles(text1, k))
+    shingles2 = set(shingles(text2, k))
+    print(shingles1)
+    print(shingles2)
     return jaccard_similarity(shingles1, shingles2)
 
 
