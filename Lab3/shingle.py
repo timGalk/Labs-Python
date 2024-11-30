@@ -1,55 +1,50 @@
 import argparse
 import sys
-
+from collections import Counter
 from a import shingles
 
-def counter_shingels(arr: list) -> dict:
+# The advice of the use of the Counter class was taken from ChatGPT for the prompt "Find the most common k-shingles
+# in the input text."
+
+def counter_shingles(arr: list) -> dict:
     """
-    Counts the frequencies of elements in `arr` and groups them by frequency.
+    Counts the frequencies of elements in `arr`.
 
     Args:
         arr (list): A list of strings.
 
     Returns:
-        dict: A dictionary where keys are frequencies, and values are lists of strings with that frequency.
+        dict: A dictionary where keys are strings, and values are their frequencies.
     """
-    # Count frequencies of each unique element in `arr`
-    counter = {}
-    for element in arr:
-        counter[element] = counter.get(element, 0) + 1
-
-    # Group elements by their frequencies
-    result = {}
-    for key, frequency in counter.items():
-        if frequency not in result:
-            result[frequency] = []
-        result[frequency].append(key)
-
-    return result
-
-
+    return Counter(arr)
 
 def main():
-
     parser = argparse.ArgumentParser(description="Find the most common k-shingles in the input text.")
     parser.add_argument('-n', type=int, required=True, help="Number of most common shingles to display.")
     parser.add_argument('-k', type=int, required=True, help="Length of each shingle.")
     args = parser.parse_args()
-    # n - number of most common shingles to display
-    if args.n <= 0:
-        raise ValueError("Number of most common shingles must be positive.")
-    if args.k <= 0:
-        raise ValueError("Impossible to have k greater than number of words ")
-    # Read multiline input until EOF
-    input_text = sys.stdin.read()
-    k_shingles = shingles(input_text, args.k)
-    most_common = counter_shingels(k_shingles)
-    loop_counter = 0
-    for frequency in sorted(most_common.keys(), reverse=True):
-        for phrase in most_common[frequency]:
-            print(f"{phrase}: {frequency}")
-        loop_counter += 1
-        if loop_counter == args.n:
-            break
 
-if __name__ == "__main__": main()
+    # Input validation
+    if args.n <= 0:
+        raise ValueError("Number of most common shingles (-n) must be positive.")
+    if args.k <= 0:
+        raise ValueError("Length of shingles (-k) must be positive.")
+
+    # Read multiline input until EOF
+    input_text = sys.stdin.read().strip()
+    if not input_text:
+        raise ValueError("Input text cannot be empty.")
+
+        # Generate shingles and count frequencies
+    k_shingles = shingles(input_text, args.k)
+    shingles_count = counter_shingles(k_shingles)
+
+    most_common = shingles_count.most_common(args.n)
+
+    print()
+     # Print results
+    for phrase, frequency in most_common:
+        print(f"{phrase}: {frequency}")
+
+if __name__ == "__main__":
+    main()
