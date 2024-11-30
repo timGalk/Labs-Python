@@ -6,7 +6,7 @@ from a import shingles
 # The advice of the use of the Counter class was taken from ChatGPT for the prompt "Find the most common k-shingles
 # in the input text."
 
-def counter_shingles(arr: list) -> dict:
+def counter_shingles(arr: list[str]) -> dict:
     """
     Counts the frequencies of elements in `arr`.
 
@@ -15,7 +15,11 @@ def counter_shingles(arr: list) -> dict:
 
     Returns:
         dict: A dictionary where keys are strings, and values are their frequencies.
+    Raises:
+        TypeError: If arr is not a list of strings.
     """
+    if not isinstance(arr, list) or  len(arr) == 0 or not all(isinstance(x, str) for x in arr):
+        raise TypeError("arr must be a list of strings.")
     return Counter(arr)
 
 def main():
