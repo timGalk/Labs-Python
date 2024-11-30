@@ -5,7 +5,7 @@ Descriprions of the functions:
 
 def shingles(t:str, k:int ) -> list:
     """
-
+    Generates k-shingles (k-grams) from a list of tokens.
     Args:
         t: string of tokens
         k: integer, number of shingles
@@ -14,9 +14,7 @@ def shingles(t:str, k:int ) -> list:
         list of shingles
     Rises:
         TypeError: if t is not a string
-        ValueError: if k is greater than the number of words in t
-
-
+        ValueError: if k is greater than the number of words in
     """
     if not isinstance(t, str) or t.isspace() or t == "":
         raise TypeError("t must be a non-empty string")
