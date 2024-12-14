@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
-from height_analysis import generate_height_data, descriptive_statistics, visualise_histogram, calculate_percentiles, identify_outliers, random_sampling, hypothesis_testing
+from scipy.stats import norm
+from height_analysis import generate_height_data, descriptive_statistics, visualise_histogram, calculate_percentiles, identify_outliers, random_sampling, hypothesis_testing, calculate_probability
 # Test Cases for Task 1
 def test_generate_height_valid_input():
     """Test for generate_height_data function with valid input."""
@@ -178,6 +179,32 @@ def test_hypothesis_testing_invalid_input():
     with pytest.raises(ValueError, match="Height data cannot be empty."):
         hypothesis_testing(np.array([]))
 
+# Task
+def test_calculate_probability():
+    data = np.array([160, 170, 180, 190, 200, 210])
+    threshold_height = 180
+    result = calculate_probability(data, threshold_height)
+
+    mean = np.mean(data)
+    std_dev = np.std(data)
+    expected_probability = 1 - norm.cdf(threshold_height, loc=mean, scale=std_dev)
+
+    # Assert that the result is close to the expected probability
+    assert np.isclose(result, expected_probability)
+
+def test_calculate_probability_invalid_input():
+    with pytest.raises(TypeError, match="Height data must be a numpy array."):
+        calculate_probability([160, 170, 180], 180)
+
+    with pytest.raises(ValueError, match="Height data cannot be empty."):
+        calculate_probability(np.array([]), 180)
+
+    with pytest.raises(TypeError, match="Threshold height must be a number."):
+        calculate_probability(np.array([160, 170, 180]), "180")
+
+    with pytest.raises(ValueError, match="Threshold height must be a positive number."):
+        calculate_probability(np.array([160, 170, 180]), -180)
+
 if __name__ == "__main__":
     #Test for Task1
     test_generate_height_valid_input()
@@ -211,6 +238,7 @@ if __name__ == "__main__":
     test_hypothesis_testing_fail_to_reject()
     test_hypothesis_testing_invalid_input()
 
-    
-    
+    #Test for Task8
+    test_calculate_probability()
+    test_calculate_probability_invalid_input()
     print("All tests passed!")
