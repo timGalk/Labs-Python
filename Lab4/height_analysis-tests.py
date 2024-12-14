@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from height_analysis import generate_height_data, descriptive_statistics, visualise_histogram, calculate_percentiles, identify_outliers, random_sampling
+from height_analysis import generate_height_data, descriptive_statistics, visualise_histogram, calculate_percentiles, identify_outliers, random_sampling, hypothesis_testing
 # Test Cases for Task 1
 def test_generate_height_valid_input():
     """Test for generate_height_data function with valid input."""
@@ -126,12 +126,54 @@ def test_identify_outliers_single_outlier():
     outliers = identify_outliers(heights)
     np.testing.assert_array_equal(outliers, np.array([300]))
    # Task 6
-def test_random_sampling_valid_input():
-    """Test for random_sampling function with valid input."""
-    height_data = np.array([160, 170, 180, 190, 200])
-    sample = random_sampling(height_data)
-    assert len(sample) == 50
-    assert np.all(np.isin(sample, height_data)) 
+
+def test_random_simpling_valid_input():
+    """Test core functionality of random sampling."""
+    array = np.array([i for i in range(1000)])
+    sample = random_sampling(array)
+    assert len(sample) == 50, "Sample size should be 50"
+    assert len(np.unique(sample)) == 50, "Samples should be unique"
+    assert all(element in array for element in sample), "All samples must be from original dataset"
+
+def test_random_sampling_invalid_input():
+    """Test error handling for invalid inputs."""
+    with pytest.raises(TypeError, match="Height data must be a numpy array."):
+        random_sampling([160, 170, 180])
+    
+    with pytest.raises(ValueError, match="Height data cannot be empty."):
+        random_sampling(np.array([]))
+def test_random_sampling_unique():
+    array = np.array([i for i in range(1000)])
+    sample = random_sampling(array)
+    assert len(np.unique(sample)) == 50
+
+# Task 7
+
+def test_hypothesis_testing_basic():
+    """Test basic functionality of hypothesis testing."""
+    # Create a dataset with a mean significantly different from 165
+    np.random.seed(42)
+    heights = np.random.normal(170, 5, 100)
+
+    t_stat, p_value, result_message = hypothesis_testing(heights)
+
+    assert isinstance(t_stat, float), "T-statistic should be a float"
+    assert isinstance(p_value, float), "P-value should be a float"
+    assert p_value < 0.05, "Expected to reject null hypothesis"
+    assert "Reject the null hypothesis" in result_message
+
+
+def test_hypothesis_testing_fail_to_reject():
+    """Test scenario where null hypothesis is not rejected."""
+    np.random.seed(42)
+    heights = np.random.normal(165, 5, 100)
+
+    t_stat, p_value, result_message = hypothesis_testing(heights)
+
+    assert p_value >= 0.05, "Expected to fail to reject null hypothesis"
+    assert "Fail to reject the null hypothesis" in result_message
+
+
 if __name__ == "__main__":
     #Test for Task1
     test_generate_height_valid_input()
@@ -155,5 +197,13 @@ if __name__ == "__main__":
     test_identify_outliers_single_outlier()
     
     #Test for Task6
+    test_random_simpling_valid_input()
+    test_random_sampling_invalid_input()
+    test_random_sampling_unique()
+
+    #Test for Task7
+
+    test_hypothesis_testing_valid_input()
+    
     
     print("All tests passed!")

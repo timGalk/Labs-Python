@@ -151,16 +151,18 @@ def random_sampling(height_data:np.ndarray) -> np.ndarray:
     return sample
 
 # Task7
-def hypothesis_testing(data:np.ndarray, null_hypothesis_mean=165) -> tuple:
-    """Performs a one-sample t-test to test the null hypothesis that the mean height is equal to 165 cm.
+
+def hypothesis_testing(data: np.ndarray, null_hypothesis_mean=165) -> tuple:
+    """Performs a one-sample t-test to test the null hypothesis that the mean height is equal to a specified value.
 
     Args:
         data (np.ndarray): Array of heights
-        null_hypothesis_mean (int, optional): Mean height for the null hypothesis. Defaults to 165.
+        null_hypothesis_mean (int or float, optional): Mean height for the null hypothesis. Defaults to 165.
 
     Returns:
-        : tuple: t-statistic, p-value
+        tuple: t-statistic, p-value, result message (text)
     """
+    # Input validation
     if not isinstance(data, np.ndarray):
         raise TypeError("Height data must be a numpy array.")
     if len(data) == 0:
@@ -169,13 +171,17 @@ def hypothesis_testing(data:np.ndarray, null_hypothesis_mean=165) -> tuple:
         raise TypeError("Null hypothesis mean must be a number.")
     if null_hypothesis_mean <= 0:
         raise ValueError("Null hypothesis mean must be a positive number.")
-    
+
+    # Perform one-sample t-test
     t_stat, p_value = ttest_1samp(data, null_hypothesis_mean)
+
+    # Prepare the result message based on the p-value
     if p_value < 0.05:
-        print("Reject the null hypothesis: The mean height is significantly different from the hypothesized mean.")
+        result_message = f"Reject the null hypothesis: The average height is significantly different from {null_hypothesis_mean} cm."
     else:
-        print("Fail to reject the null hypothesis: The mean height is not significantly different from the hypothesized mean.")
-    return (t_stat, p_value)
+        result_message = f"Fail to reject the null hypothesis: The average height is not significantly different from {null_hypothesis_mean} cm."
+
+    return (t_stat, p_value, result_message)
 
 def calculate_probability(data:np.ndarray, threshold_height=180) -> np.float64:
     """Calculates the probability of finding a height greater than 180 cm in the dataset.
@@ -219,8 +225,8 @@ if __name__ == "__main__":
     sample = random_sampling(heights)
     print("Random Sample:", sample)
     # Perform hypothesis testing
-    t_stat, p_value = hypothesis_testing(heights)
-    print(f"t-statistic: {t_stat}, p-value: {p_value}")
+    t_stat, p_value, result = hypothesis_testing(heights)
+    print(f"t-statistic: {t_stat}, p-value: {p_value}, result: {result}")
     # Calculate probability
     probability = calculate_probability(heights)
     print(f"Probability of finding a height greater than 180 cm: {probability}")
