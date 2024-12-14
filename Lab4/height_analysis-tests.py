@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from height_analysis import generate_height_data, descriptive_statistics, visualise_histogram
+from height_analysis import generate_height_data, descriptive_statistics, visualise_histogram, calculate_percentiles, identify_outliers, random_sampling
 # Test Cases for Task 1
 def test_generate_height_valid_input():
     """Test for generate_height_data function with valid input."""
@@ -31,6 +31,7 @@ def test_generate_height_invalid_input():
     # Warning
     with pytest.warns(UserWarning):
         generate_height_data(size=299)
+
 # Test Cases for Task 2
 
 def test_descriptive_statistics_valid_input():
@@ -48,6 +49,89 @@ def test_descriptive_statistics_invalid_input():
     with pytest.raises(ValueError):
         descriptive_statistics(np.array([]))
 
+# Test Cases for Task 3
+
+def test_visualise_histogram_valid_input():
+    """Test visualise_histogram with valid input"""
+    height_data = np.array([160, 170, 180, 190, 200])
+    try:
+        visualise_histogram(height_data)
+    except Exception as e:
+        pytest.fail(f"Unexpected error: {e}")
+
+def test_visualise_histogram_invalid_input_type():
+    """Test visualise_histogram with invalid input type"""
+    with pytest.raises(TypeError):
+        visualise_histogram("invalid input")
+
+def test_visualise_histogram_empty_array():
+    """Test visualise_histogram with empty array"""
+    with pytest.raises(ValueError):
+        visualise_histogram(np.array([]))
+
+# Test Cases for Task 4
+
+def test_calculate_percentiles_valid_input():
+    """Test for calculate_percentiles function with valid input."""
+    data = np.array([150, 160, 170, 180, 190])
+    p25, p50, p75 = calculate_percentiles(data)
+    assert p25 == 160  # 25th percentile
+    assert p50 == 170  # Median (50th percentile)
+    assert p75 == 180  # 75th percentile
+
+def test_calculate_percentiles_invalid_input():
+    """Test for calculate_percentiles function with invalid input."""
+    with pytest.raises(ValueError, match="Height data cannot be empty."):
+        calculate_percentiles(np.array([]))
+    with pytest.raises(TypeError, match="Height data must be a numpy array."):
+        calculate_percentiles([150, 160, 170, 180, 190])  # Passing a list instead of numpy array
+
+    # Task 5 
+    
+    # Test cases were generted by Claude AI for the question: "Generate test cases for the function identify_outliers"
+def test_identify_outliers_normal_case():
+    """Test identifying outliers in a typical dataset."""
+    heights = np.array([160, 165, 170, 175, 180, 185, 190, 220, 130])
+    outliers = identify_outliers(heights)
+    np.testing.assert_array_equal(outliers, np.array([220, 130]))
+
+def test_identify_outliers_all_within_range():
+    """Test a dataset where no outliers exist."""
+    heights = np.array([170, 172, 175, 173, 171, 174])
+    outliers = identify_outliers(heights)
+    assert len(outliers) == 0
+
+def test_identify_outliers_input_types():
+    """Test error handling for incorrect input types."""
+    with pytest.raises(TypeError, match="Height data must be a numpy array."):
+        identify_outliers([160, 170, 180])  # List instead of numpy array
+    
+    with pytest.raises(TypeError, match="Height data must be a numpy array."):
+        identify_outliers(None)
+
+def test_identify_outliers_empty_input():
+    """Test error handling for empty input."""
+    with pytest.raises(ValueError, match="Height data cannot be empty."):
+        identify_outliers(np.array([]))
+
+def test_identify_outliers_floating_point():
+    """Test the function works with floating point height data."""
+    heights = np.array([170.5, 171.2, 172.8, 180.5, 165.3, 220.7, 140.1])
+    outliers = identify_outliers(heights)
+    np.testing.assert_array_equal(outliers, np.array([220.7, 140.1]))
+
+def test_identify_outliers_single_outlier():
+    """Test a case with only one outlier."""
+    heights = np.array([170, 172, 175, 300, 171, 173])
+    outliers = identify_outliers(heights)
+    np.testing.assert_array_equal(outliers, np.array([300]))
+   # Task 6
+def test_random_sampling_valid_input():
+    """Test for random_sampling function with valid input."""
+    height_data = np.array([160, 170, 180, 190, 200])
+    sample = random_sampling(height_data)
+    assert len(sample) == 50
+    assert np.all(np.isin(sample, height_data)) 
 if __name__ == "__main__":
     #Test for Task1
     test_generate_height_valid_input()
@@ -55,4 +139,21 @@ if __name__ == "__main__":
     #Test for Task2
     test_descriptive_statistics_valid_input()
     test_descriptive_statistics_invalid_input()
+    #Test for Task3
+    # test_visualise_histogram_valid_input()
+    test_visualise_histogram_invalid_input_type()
+    test_visualise_histogram_empty_array()
+    #Test for Task4
+    test_calculate_percentiles_valid_input()
+    test_calculate_percentiles_invalid_input()
+    #Test for Task5
+    test_identify_outliers_normal_case()
+    test_identify_outliers_all_within_range()
+    test_identify_outliers_input_types()
+    test_identify_outliers_empty_input()
+    test_identify_outliers_floating_point()
+    test_identify_outliers_single_outlier()
+    
+    #Test for Task6
+    
     print("All tests passed!")
