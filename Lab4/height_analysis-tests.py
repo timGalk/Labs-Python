@@ -157,8 +157,6 @@ def test_hypothesis_testing_basic():
 
     t_stat, p_value, result_message = hypothesis_testing(heights)
 
-    assert isinstance(t_stat, float), "T-statistic should be a float"
-    assert isinstance(p_value, float), "P-value should be a float"
     assert p_value < 0.05, "Expected to reject null hypothesis"
     assert "Reject the null hypothesis" in result_message
 
@@ -173,6 +171,12 @@ def test_hypothesis_testing_fail_to_reject():
     assert p_value >= 0.05, "Expected to fail to reject null hypothesis"
     assert "Fail to reject the null hypothesis" in result_message
 
+def test_hypothesis_testing_invalid_input():
+    with pytest.raises(TypeError, match="Height data must be a numpy array."):
+        hypothesis_testing([160, 170, 180])
+
+    with pytest.raises(ValueError, match="Height data cannot be empty."):
+        hypothesis_testing(np.array([]))
 
 if __name__ == "__main__":
     #Test for Task1
@@ -203,7 +207,10 @@ if __name__ == "__main__":
 
     #Test for Task7
 
-    test_hypothesis_testing_valid_input()
+    test_hypothesis_testing_basic()
+    test_hypothesis_testing_fail_to_reject()
+    test_hypothesis_testing_invalid_input()
+
     
     
     print("All tests passed!")

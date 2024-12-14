@@ -181,7 +181,7 @@ def hypothesis_testing(data: np.ndarray, null_hypothesis_mean=165) -> tuple:
     else:
         result_message = f"Fail to reject the null hypothesis: The average height is not significantly different from {null_hypothesis_mean} cm."
 
-    return (t_stat, p_value, result_message)
+    return t_stat, p_value, result_message
 
 def calculate_probability(data:np.ndarray, threshold_height=180) -> np.float64:
     """Calculates the probability of finding a height greater than 180 cm in the dataset.
