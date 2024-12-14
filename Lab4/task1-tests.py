@@ -1,2 +1,0 @@
-import pytest
-from task1 import visualise_histogram, descriptive_statistics, generate_height_data
