@@ -1,0 +1,448 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/timGalk/Labs-Python/blob/main/Lab5\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Positron Emission Tomography tumor segmentation\n",
+        "\n",
+        "[Positron emission tomography](https://en.wikipedia.org/wiki/)\n",
+        "(PET) is a medical imaging technique used to visualize distribution of radiotracers in human body. As malignant tumors have high uptake of Fluorodeoxyglucose, PET is often used to detect cancer metastases. Often, we want to delineate tumors on PET images, which are quite noisy and have relatively low resolution. In this exercise we will try to automatize segmentation of 3d PET images of clinical, phantom and simulated tumors.\n",
+        "\n",
+        "The exercise is based on [The first MICCAI challenge on PET tumor segmentation](https://www.sciencedirect.com/science/article/pii/S1361841517301895). Please do not distribute associated data as their license status is unknown."
+      ],
+      "metadata": {
+        "id": "25PXQ2F1mJp3"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "The first step in processing is, of course, loading the image. Medical images are usually saved in the [DICOM](https://www.dicomstandard.org}) format as a set of *slices* with a header describing the characteristics of the examination. To process this type of data in Python, we can use the [`pydicom`](http://github.com/pydicom/pydicom) package. In practice, working with DICOM data can be difficult due to the variety of dialects of formats used by different device manufacturers. Therefore, researchers working on medical image processing often prefer alternative formats, such as [NIfTi](http://nifti.nimh.nih.gov) and [NRRD](http://teem.sourceforge.net/nrrd/format.HTML). In both cases, 3D (or 4D) images are saved directly. In Python, the packages dedicated to these formats are [`nibabel`](http://nipy.org/nibabel/) and [`pynrrd`](http://github.com/mhe/). An increasing number of anonymized image datasets can be found in public repositories, such as  [TCIA](http://www.cancerimagingarchive.net), [OASIS-Brains](http://www.oasis-brains.org) and [ADNI](http://adni.loni.usc.edu).\n",
+        "\n",
+        "We will work with the NIfTi format using *nibabel*."
+      ],
+      "metadata": {
+        "id": "ZoxLnq9dPxF7"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "But before we start, upload your data from e-portal:"
+      ],
+      "metadata": {
+        "id": "f_ViU-piMjCk"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import files\n",
+        "uploaded = files.upload()\n",
+        "!unzip petseg_data.zip"
+      ],
+      "metadata": {
+        "id": "GHnP0W9fMnwl"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "\n",
+        "try:\n",
+        "  import nibabel as nib\n",
+        "except:\n",
+        "  !pip install nibabel\n",
+        "  import nibabel as nib\n",
+        "\n",
+        "img = nib.load('clinical_1_PET.nii')\n",
+        "img_data = img.get_fdata()\n",
+        "\n",
+        "print(type(img_data))\n",
+        "print(img_data.dtype)\n",
+        "print(img_data.shape)\n",
+        "\n",
+        "img_data = img_data/np.max(img_data)"
+      ],
+      "metadata": {
+        "id": "vvV393k6oVxl"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "This way we loaded a [`numpy.memmap`](https://numpy.org/doc/stable/reference/generated/numpy.memmap.html), which is an array-like object. We have also normalized the array values to [0, 1]. Now let's write a function to visualize the scan. There are few little tricks"
+      ],
+      "metadata": {
+        "id": "cvAmVuM8ppHZ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "\n",
+        "def plot_slices(img_data, cmap=plt.cm.gray, vmin=0.0, vmax=1.0):\n",
+        "    \"\"\"Plots a 3d-array-like object as roughly square 2d grid of slices.\n",
+        "\n",
+        "    Args:\n",
+        "      img_data (3d-array-like object): intended to represent a medical image\n",
+        "      cmap (Colormap): Matplotlib color map, default: cm.gray\n",
+        "      vmin (float): minimum pixel intesity, default 0.0\n",
+        "      vmax (float): maximum pixel intesity, default 1.0\n",
+        "\n",
+        "    Returns:\n",
+        "      Figure: Matplotlib figure object\n",
+        "    \"\"\"\n",
+        "\n",
+        "    ncols = int(np.ceil(img_data.shape[0]**0.5))\n",
+        "    nrows = int(np.ceil(img_data.shape[0]/ncols))\n",
+        "\n",
+        "    fig, axes = plt.subplots(ncols=ncols, nrows=nrows,\n",
+        "                             constrained_layout=True)\n",
+        "    i = 0\n",
+        "    for ax in axes.flatten():\n",
+        "        if i < img_data.shape[0]:\n",
+        "            ax.imshow(img_data[i], cmap=cmap, vmin=vmin, vmax=vmax)\n",
+        "        ax.axis('off')\n",
+        "        i += 1\n",
+        "    return fig"
+      ],
+      "metadata": {
+        "id": "FHoEGKjdqqQI"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "fig = plot_slices(img_data)\n",
+        "fig.show()"
+      ],
+      "metadata": {
+        "id": "F_zk_dcHrQsq"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Now, the issues of low resolution and noise are rather clear...\n",
+        "\n",
+        "How can we delineate the tumor? The most naive way is probably to use a single threshold. Which one? Let's check histogram:"
+      ],
+      "metadata": {
+        "id": "53_FpPZtsDJR"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "plt.hist(img_data.flatten())"
+      ],
+      "metadata": {
+        "id": "8EI0IJHMsgbA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Perhaps, tumor pixels will be in the heavy tail of intesity distribution, say above 0.4."
+      ],
+      "metadata": {
+        "id": "Xc2sS_IyssNN"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "seg_img_data = img_data > 0.4\n",
+        "plot_slices(seg_img_data).show()"
+      ],
+      "metadata": {
+        "id": "vomYcOk0s-MP"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Are we happy with this segmentation? Well...\n",
+        "\n",
+        "What we can do is to smooth the segmentation a bit and one easy way to do so is through the *opening* and *closing*, which are simply the *erosion* of the *dilation* and the dilation of the erosion, respectively:-) Sounds good, doesn't it? Alors, the (binary) [erosion](https://en.wikipedia.org/wiki/Erosion_(morphology)) scans the image and zeros pixels around existing zeros. The (binary) [dilation](https://en.wikipedia.org/wiki/Dilation_(morphology)) does the opposite: it scan the image and set ones around existing ones. The neighbourhood to be zeroed or set can be defined by any structuring element (a shape made of ones). In case of [`binary_closing`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.binary_closing.html) and [`binary_opening`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.binary_opening.html) functions from the [`scipy.ndimage`](https://docs.scipy.org/doc/scipy/reference/ndimage.html) package, this structuring element by default involves only direct neighbours of the processed position. Importantly, the user of the binary opening and closing functions can ask for the erosion and the dilation to be repeated by setting the `iterations` parameter. Generally, the aim of closing is to remove little holes, while the aim of opening is to remove little islands. Does it make sense in our case?"
+      ],
+      "metadata": {
+        "id": "IJS5u8t1t8Hs"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from scipy.ndimage import binary_opening, binary_closing\n",
+        "\n",
+        "seg_img_data = binary_opening(seg_img_data, iterations=1)\n",
+        "print('After opening:')\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()\n",
+        "seg_img_data = binary_closing(seg_img_data, iterations=1)\n",
+        "print('After opening and closing:')\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "id": "xDEjzC4r4_fQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Somewhat better.\n",
+        "\n",
+        "Now let's compare our result with expert segmentation."
+      ],
+      "metadata": {
+        "id": "qFDpbhtQ6Ggi"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from matplotlib.colors import ListedColormap\n",
+        "\n",
+        "gt = nib.load('clinical_1_GT.nii')\n",
+        "gt_data = gt.get_fdata()\n",
+        "\n",
+        "# True Negative: 0/black, False Positives: 1/red, False Negatives: 2/blue, True Positives: 3/white\n",
+        "comb_data = 2 * gt_data + seg_img_data\n",
+        "\n",
+        "cmap = ListedColormap([\"black\", \"red\", \"blue\", \"white\"])\n",
+        "plot_slices(comb_data, cmap=cmap, vmin=0, vmax=3).show()"
+      ],
+      "metadata": {
+        "id": "tIGzCQA36acB"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "How to quantify the difference or similarity? One popular measure is [Dice coefficient](https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient):\n",
+        "\n",
+        "$$\n",
+        "\\mathrm{DSC} = \\frac{2|X \\cap Y|}{|X|+|Y|}.\n",
+        "$$"
+      ],
+      "metadata": {
+        "id": "MRMyOYuG8vIm"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def dice_coef(seg1, seg2):\n",
+        "  return np.sum(2*seg1 * seg2) / (np.sum(seg1) + np.sum(seg2))\n",
+        "\n",
+        "print(dice_coef(gt_data, seg_img_data))"
+      ],
+      "metadata": {
+        "id": "5k-YIzMw910H"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "It feels like we could have done better.\n",
+        "\n",
+        "First, let's try to smooth the image a bit with the [Gaussian filter](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html)."
+      ],
+      "metadata": {
+        "id": "OI6YFOFl-tjl"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from scipy.ndimage import gaussian_filter\n",
+        "\n",
+        "smooth_img_data = gaussian_filter(img_data, 1.0)\n",
+        "print('After smoothing:')\n",
+        "plot_slices(smooth_img_data).show()\n",
+        "plt.show()\n",
+        "\n",
+        "seg_img_data = smooth_img_data > 0.4\n",
+        "print('and segmentation at threshold 0.4:')\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()\n",
+        "\n",
+        "seg_img_data = binary_opening(seg_img_data, iterations=1)\n",
+        "print('and opening:')\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()\n",
+        "print('and closing:')\n",
+        "seg_img_data = binary_closing(seg_img_data, iterations=1)\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()\n",
+        "\n",
+        "print('Difference:')\n",
+        "plot_slices(gt_data * 2 + seg_img_data, cmap=cmap, vmin=0, vmax=3).show()\n",
+        "plt.show()\n",
+        "\n",
+        "print('Dice:')\n",
+        "print(dice_coef(gt_data, seg_img_data))"
+      ],
+      "metadata": {
+        "id": "6TVrQKGu_AEk"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "There is some improvement! Now, how about the automatic choice of threshold? We will try one simple but powerful clustering method called [K-means](https://en.wikipedia.org/wiki/K-means_clustering), which will divide all pixels into two categories. The method is stochastic and we never know if it assigns classes 0 and 1 to dark and bright pixels, or the other way round. To assure the former order, we check which class has the brightest pixel and invert the segmentation mask if needed."
+      ],
+      "metadata": {
+        "id": "8mfH4wlgA1Jc"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.cluster import KMeans\n",
+        "\n",
+        "dim = smooth_img_data.shape\n",
+        "\n",
+        "# KMeans from sklearn cluster does not like 3d arrays.\n",
+        "reshaped_img_data = smooth_img_data.reshape((dim[0]*dim[1]*dim[2], 1))\n",
+        "km = KMeans(n_clusters=2, n_init='auto', max_iter=10).fit(reshaped_img_data)\n",
+        "seg_img_data = km.predict(reshaped_img_data).reshape((dim[0], dim[1], dim[2]))\n",
+        "\n",
+        "# the trick\n",
+        "if np.abs(np.min((seg_img_data-0.5)*smooth_img_data)) > np.max((seg_img_data-0.5)*smooth_img_data):\n",
+        "    seg_img_data = 1 - seg_img_data\n",
+        "\n",
+        "print('and segmentation with K-mean:')\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()\n",
+        "\n",
+        "seg_img_data = binary_opening(seg_img_data, iterations=1)\n",
+        "print('and opening:')\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()\n",
+        "print('and closing:')\n",
+        "seg_img_data = binary_closing(seg_img_data, iterations=1)\n",
+        "plot_slices(seg_img_data).show()\n",
+        "plt.show()\n",
+        "\n",
+        "print('Difference:')\n",
+        "plot_slices(gt_data * 2 + seg_img_data, cmap=cmap, vmin=0, vmax=3).show()\n",
+        "plt.show()\n",
+        "\n",
+        "print('Dice:')\n",
+        "print(dice_coef(gt_data, seg_img_data))"
+      ],
+      "metadata": {
+        "id": "mcq69D2zBXhB"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "There has probably been another slight improvement (remember that K-means is stochastic)"
+      ],
+      "metadata": {
+        "id": "2RdzMVqxDYzY"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Now it is your turn.\n",
+        "\n",
+        "**Tasks:**\n",
+        "1.   Apply the pipeline to other scans in your dataset.\n",
+        "2.   Report the Dice scores for all images.\n",
+        "3.   Calculate overal mean, median and standard deviations.\n",
+        "4.   Identify the most difficult targets in clinical, phantom and simulated subsets, visualize them.\n",
+        "5.   Adjust parameters of the Gaussian filter, K-Means algorithm, the opening and closing functions -- try to get as high Dice score as possible (or, e.g. reduce its variance).\n",
+        "6.   (*optional*) Modify the pipeline by changing or adding the pre-/postprocessing methods or the segmentation algorithm.\n"
+      ],
+      "metadata": {
+        "id": "lDfLrYGxDtL_"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "The code below scans the current directory and extracts tuples of corresponding PET and GT files."
+      ],
+      "metadata": {
+        "id": "zuFEMg_aL6iH"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "\n",
+        "scan_files = []\n",
+        "\n",
+        "for file in os.listdir():\n",
+        "    filename = os.fsdecode(file)\n",
+        "    if filename.endswith(\".nii\") and filename.find('PET')>0:\n",
+        "        gtfilename = filename[:filename.find('PET')] + 'GT.nii'\n",
+        "        scan_files += [(filename, gtfilename)]\n",
+        "\n",
+        "print(scan_files)\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "HET4j7TrImu4"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
