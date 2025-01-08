@@ -22,6 +22,7 @@ def test_task2 ():
         book3 = Book("LOTR", "Tolkien", "1924")
 
 
+
 if __name__ == "__main__":
     test_task1()
     print("Tests for task 1 passed successfully")
